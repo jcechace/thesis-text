@@ -1,14 +1,27 @@
 \chapter{Práce se soubory v systému pro správu diplomových prací}
-\blindtext
+Výstupem bakalářské práce bývá zpravidla zpráva v podobně textového dokumentu (nejčastěji ve formátu PDF), často doplněna o množství příloh jako implementace konkrétního řešení nebo vzorek použitých dat. Jedná se o důležitou součástí hodnocení práce a například konkrétní technické řešení mnohdy bývá hlavním důvodem vypsání práce. Tyto soubory je proto nutné je archivovat. V této kapitole popisuji použité technologie a technické řešení nahrávání a archivace souboru v systému pro správu závěrečných prací.
 
 \section{Aplikační logika na straně serveru}
 \blindtext[2]
 
-\subsection{MongoDB}
+\subsection{GridFS}
+GridFS je specifikace popisující způsob ukládání a získávání souboru z databáze MongoDB, které přesahují maximální povolenou velikost BSON dokumentu, stanovenou na 16 MB.
 \blindtext[1]
 
-\subsection{Ukládání souborů a komunikace s databází}
-\blindtext[1]
+\subsection{Moduly pro práci s Mongo GridFS dostupné na platformě Grails}
+Repositář zásuvných modulů platformy Grails nabízí hned několik implementací technického řešení komunikace s databází MongoDB potažmo její nadstavby GridFS. Pro výběr vyhovujícího řešení jsem proto stanovil následující požadavky:
+
+\begin{itemize}
+\item Údržba modulu ze strany autora, alespoň v podobě opravy chyb.
+\item Alespoň stručná dokumentace k aktuální verzi modulu.
+\item Nejlépe žádné změny v entitách mapovaných na relační databázi.
+\item Zvolený zásuvný modul by měl řešit pouze ukládání souborů, avšak dostatečně pružně pro budoucí rozvoj systému.
+\end{itemize}
+
+Hned první dva z požadavků však dokázaly vyřadit většinu dostupných modulů. Ukázalo se, že velká část z nich postrádá dokumentací, případě  to jsou jednorázově vyvinuté projekty bez jakékoliv údržby. Další požadavky pak spolehlivě vyřadily i zbylé kandidáty. Za zmínku stojí zejména dva z dostupných modulů. MongoDB GORM je, jak název napovídá, implementací rozhraní GORM pro databází MongoDB. Tento modul se však hodí spíše, obdobně jako výchozí ORM implementace, pro persistenci kompletních doménových tříd. Mongo GORM jsem se proto rozhodl použít k persistenci objektů dynamického charakteru, jakým je například konfigurace systému, ukládaných do databáze MongoDB. Druhým modulem, který se ukázal být přínosným, je projekt Mongodb Gridfs. Ačkoliv tento modul obsahuje spoustu drobných chyb a jeho vývoj byl s největší pravděpodobností ukončen, zdrojový kód se ukázal jako výborný studijní materiál a pro vývoj vlastní aplikační logiky pro ukládání souborů do Mongo GridFS.
+
+\section{Technické řešení aplikace na straně serveru}
+\blindtext[2]
 
 \section{Technické řešení aplikace na straně klienta}
 \blindtext[2]
