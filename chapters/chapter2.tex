@@ -1,20 +1,70 @@
 \chapter{Groovy Grails}
-\blindtext
 
-\section{Technologie v pozadí}
-\blindtext[1]
+\section{Technologie v~pozadí}
+Platforma programovacího jazyka Java je s~námi  již skoro 15 let. Pravděpodobně nikoho proto nepřekvapí, že během této doby vznikla spousta kvalitních knihoven řešících různé potřeby softwarového inženýrství. Této skutečnosti si byl vědomi už v~roce 2005 i vývojáři vůbec první verze Grails. Místo startu na zelené louce a vynalézání kola proto Grails staví na existujících a v~praxi prověřených technologiích.
 
-\section{Ekosystém zásuvných modulů}
-\blindtext[1]
+\subsection{Aplikační rámec Spring}
+Aplikační rámec Spring  tvoří základ základ platformy Grails. Jedná se o~rámec poskytující prostředky pro vývoj moderních enterprise aplikací, jehož vůbec první verzi vyvinul Rod Johnson jako součást své knihy \uv{Expert One-on-One J2EE Design} pojednávající o~návrhu a principech vývoje Java EE aplikací. Primárním cílem tohoto rámce je maximálně usnadnit vývoj enterprise aplikací. Díky tomu se dnes jedná o~jednu z~nejrozšířenějších platforem pro vývoj Java EE aplikací a alternativu k~tradičním Enterprise Java Beans. Grails využívá podstatnou část funkcionality poskytované platformou Spring -- počínaje \uv{Inversion of Control} kontejnerem, přes integrační vlastnosti Springu, až po Aspektově orientované programování a podporu transakcí. S~Grails lze navíc velmi snadno použít i libovolný z~modulů rozšiřující jádro platformy Spring, jako je například Spring Security.
+
+
+\subsection{Groovy}
+V~kontextu platformy Grails představuje Groovy nejen jazyk používaný k~vývoji aplikací. Jedná se také o~pomyslné \uv{lepidlo} spojující použité technologie a knihovny. Vlastnosti programovacího jazyka groovy, jako například \uv{buildery}, jej dělají ideálním prostředkem pro vývoj doménově specifických jazyků (dále jen DSL).  Díky tomu vytváří Groovy uživatelsky přívětivá rozhraní zastřešující jednotlivé části platformy. Velmi časté je například využití DSL v~konfiguračních souborech, jenž umožňuje uživatele odstínit od komplexity celé konfigurace a minimalizuje množství opakujícího se kódu.
+\begin{example}
+\centering
+\begin{lstlisting}
+<beans xmlns="http://www.springframework.org/schema/beans">
+    <bean id="mongoProvider" class="com.redhat.theses.config"/>
+    <bean id="transactionManager" class="com.redhat.theses.config.MongoProvider">
+        <property name="configurationProvider" ref="mongoProvider"/>
+    </bean>
+</beans>
+\end{lstlisting}
+\begin{lstlisting}
+beans = {
+    configuration(Configuration) {
+        configurationProvider = ref("mongoConfigurationProviderService")
+    }
+}
+\end{lstlisting}
+\caption{Definice Spring bean -- XML (nahoře) a Grails DSL (dole)}
+\end{example}
+
+\subsection{Hibernate}
+Hibernate je populární knihovna pro Objektově-Relačního mapování (dále jen ORM), řešící problém rozdílné reprezentace dat v~objektovém světě a relačních uložištích. Hibernate se také snaží odstínit uživatele od rozdílných dialektů jazyka SQL používaných v~různých databázích. V~kontextu platformy Grail představuje Hibernate součást řešení vrstvy persistence dat poskytované v~základní distribuci.
+
+\subsection{Groovy Server Pages a SiteMesh}
+Groovy Server Pages (dále jen GSP) představují značkovací jazyk určený pro vývoj aplikací prezenční vrstvy. Obdobně jako syntakticky podobné Java Server Pages (dále jen JSP) umožňují GSP kombinovat statický a dynamický obsah. GSP však přináší drobná vylepšení vyplývající z~dynamické podstaty jazyka Groovy. Místo \uv{Expression Language} používaného v~JSP tak lze například využít speciální textové řetězce (\texttt{GString}) vyhodnocované přímo groovy interpretem, což minimalizuje potřebu definovat knihovny značek.
+
+\indent
+SiteMesh pak představuje flexibilní šablonovací systém založený na návrhovém vzoru \uv{dekorátor}. Mezi nevýhody samostatného použití SiteMesh patří zejména nutnost deklarovat každou šablonu, takzvaný \uv{dekorátor}, v~konfiguračním XML souboru. Grails použití tohoto šablonovacího systému usnadňuje pomocí přidaných značek pro práci se šablonami a automatickým generováním konfiguračního souboru.
+
 
 \section{Convention over configuration}
-\blindtext[1]
+Princip \uv{Convention over configuration} reprezentuje myšlenku poskytnutí rozumných výchozích hodnot a konfigurace za účelem maximálně usnadnit práci vývojáře. Cílem je jednak udělat vývoj aplikací zábavnějším a hlavně umožnit vývojáři aby se soustředil na samotnou funkcionality vyvíjeného systému místo přípravy prostředí. Jak jsem již zmínil, platforma Grails staví na řadě jiných aplikačních rámců, z~nichž většina vyžaduje určitou formu konfigurace -- ať už je to nastavení prostřednictví XML souboru nebo využití anotací. Dodržování stanovených zásad, jako například umístění souborů či jména proměnných, porto značným způsobem sníží množství potřebné konfigurace. Ačkoliv princip využívání konvencí je nedílnou součásti Grails, samotný rámec vývojáře nijak k~jejich dodržování nenutí a možnosti konfigurace nejsou nijak omezeny.
+
+\section{Ekosystém zásuvných modulů}
+Existuje mnoho typů aplikací, určených pro různé oblasti naší společnosti, které mají mnohdy velice rozdílné požadavky. Ačkoliv se Grails snaží poskytnout komplexní řešení pro vývoj informačních systémů a webových aplikací, nelze uspokojit požadavky na vývoj všech možných projektů. Místo
+rozšiřování funkcionality základní distribuce platformy proto Grails nabízí možnost do vyvíjených aplikací doinstalovat zásuvné moduly, které rozšíří možnosti rámce o~požadovanou funkcionalitu. Současné verze platformy Grails se snaží o~modularizaci základní distribuce a funkcionalitu, která nemusí být nutně využita ve všech projektech, přesunout právě do zásuvných modulů. Příkladem tohoto směrování je například plánované přesunutí podpory Hibernate do zásuvného modulu, související s~rozvojem používání NoSQL databází. Základní distribuce platformy Grails aktuálně obsahuje 23 zásuvných modulů -- 16 modulů tvořících jádro rámce a 7 doplňkových modulů, které lze v~případě potřeby odinstalovat. Průměrně používá každá aplikace postavená na této platformě 30 rozšíření, včetně modulů jádra.
+
+\subsection{instalace zásuvných modulů}
+V~současné době lze do aplikace vyvíjené na platformě Grails nainstalovat zásuvný modul dvěma způsoby. První způsobem je použití příkazu \texttt{grails install-plugin <jmémo modulu>}. V~aktuální verzi platformy je však tento způsob označen jako zastaralý a do budoucna se počítá s~jeho odstraněním. Preferovaným způsobem je nyní přidat rozšíření do sekci \texttt{plugins} v~konfiguračního souboru \texttt{BuildConfig.groovy}. Ačkoliv se toto může zdát krokem zpět, důvodem k~této změně je sjednocení instalace zásuvných modulů a definice ostatních závislostí projektu.
+\begin{example}
+    \centering
+    \begin{lstlisting}
+    plugins {
+        build ":tomcat:$grailsVersion"
+        compile ":platform-core:1.0.RC5"
+        compile ":markdown:1.1.1"
+        compile ":mail:1.0.1"
+    }
+    \end{lstlisting}
+    \caption{Instalace zásuvného modulu.}
+\end{example}
 
 \section{Podobné platformy}
-\blindtext[1]
 
 \subsection{Ruby on Rails}
-\blindtext
+Ruby on Rails je webovým rámcem, který začal jako první silně propagovat princip \uv{Convention over configuration}. Jak název napovídá, jedná se o~rámec pro programovací jazyk Ruby a právě Rails je příčinou dnešní popularity tohoto dynamického jazyka. Vlastnostmi se Ruby on Rails velmi podobá rámci Grails neboť bylo jeho předlohou -- v~obou případech se jedná o~vysoce produktivní webové rámce využívající princip  \uv{Convention over configuration}. Hlavním rozdílem mezi oběma rámci je přístup k~doménovým třídám a databázi. Zatímco Grails využívá princip objektově-relačního mapování založeného na návrhovém vzoru \uv{Data Mapper}, který kromě doménových tříd využívá i takzvaný \uv{mapovací objekt} zodpovědný za mapování dat z~databáze do konkrétní instance doménové třídy. Rails pro persistenci doménových tříd používá návrhový vzor \uv{Active Record}, který Marting Fowler definuje jako \uv{Objekt, který obaluje řádek v~databázové tabulce nebo pohledu, zapouzdřuje přístup k~databázi, a přidává doménovou logiku}. Z~pohledu vývojáře představuje \uv{Active Record} transparentnější spojení objektu a databáze, cenou je však nižší flexibilita takového mapování.
 
 \subsection{Django}
-\blindtext
+Django představuje alternativu ze světa jazyka Python. Stejně jako v~případě Grails a Rails se jedná o~webový rámec s~vysokou produktivitou. Co se technických možností týče, je Django srovnatelné s~oběma předchozími. Hlavní odlišnosti této platformy jsou především filosofické a vycházejí přímo z~návrhu samotného Pythonu. Django se tak snaží mnohem méně využívat takzvané \uv{magie} v~podobě implicitně definovaných atributů, metod a výchozích hodnot. V~důsledku tohoto chování jsou aplikace vyvíjené s~použitím tohoto rámce přehlednější. Právě přehlednost je Django komunitou vyzdvihována jako velká výhoda této platformy, která je však vykoupena nutností napsat více kódu.
