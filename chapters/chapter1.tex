@@ -4,23 +4,41 @@
 Diplomová práce představuje finální studii, jejíž vypracování je požadováno pro získání vysokoškolského diplomu. Většina studentů si oblast své diplomové práce vybírá přibližně ve druhé polovině studia. Celý proces obvykle vypadá nějak takto:
 \begin{enumerate}
     \item Student si vybere pro něj zajímavé téma diplomové práce.
-    \item Student kontaktuje vedoucího práce a po domluvě s ním se k danému tématu přihlásí.
-    \item Student pracuje na své závěrečné práci a průběh konzultuje s vedoucím.
+    \item Student kontaktuje vedoucího práce a po domluvě s~ním se k~danému tématu přihlásí.
+    \item Student pracuje na své závěrečné práci a průběh konzultuje s~vedoucím.
     \item Jsou vypracovány Dva posudky hodnotící kvalitu práce. Autorem prvního je vždy vedoucí. Druhý posudek je pak vypracován nezávislou osobou
-    \item Studen musí práci obhájit před komisí, která s přihlédnutím k posudkům udělí známku.
+    \item Studen musí práci obhájit před komisí, která s~přihlédnutím k~posudkům udělí známku.
 \end{enumerate}
 
-Obvykle existuje několik zdrojů, ze kterých mají studenti možnost vybírat téma své budoucí diplomové práce. První možností je vybrat si ze seznamu témat dostupných na dané univerzitě, v takovém případě se většinou jedná o oblast blízkou vedoucímu daného tématu. Další možností je vymyslet si téma vlastní a domluvit se s některým z vyučujících na jeho oficiálním vypsání. V neposlední řadě si pak studenti mohou vybrat téma nabízené nějakou třetí stranou -- například společností Red Hat. V tomto případě často se často do výše zmíněného procesu zapojuje druhý vedoucí, například člověk z firmy zadávající dané téma, který přebírá roli konzultanta.
+Obvykle existuje několik zdrojů, ze kterých mají studenti možnost vybírat téma své budoucí diplomové práce. První možností je vybrat si ze seznamu témat dostupných na dané univerzitě, v~takovém případě se většinou jedná o~oblast blízkou vedoucímu daného tématu. Další možností je vymyslet si téma vlastní a domluvit se s~některým z~vyučujících na jeho oficiálním vypsání. V~neposlední řadě si pak studenti mohou vybrat téma nabízené nějakou třetí stranou -- například společností Red Hat. V~tomto případě často se často do výše zmíněného procesu zapojuje druhý vedoucí, například člověk z~firmy zadávající dané téma, který přebírá roli konzultanta.
 
 \section{Informační systémy}
-Informační systém (IS) představuje soubor lidí, prostředků a procesů pro sběr, přenos, uchování a zpracování dat. Ačkoliv příkladem takového systémů může být i dobře vedená kartotéka, tato práce se zabývá vývojem elektronického informačního systému -- konkrétně pak jeho Softwarové části.
+Informační systém představuje soubor lidí, prostředků a procesů pro sběr, přenos, uchování a zpracování dat. Ačkoliv příkladem takového systémů může být i dobře vedená kartotéka, v~kontextu této práce uvažuji vždy informační systémy elektronické.
 
 \section{Návrh systému pro správu diplomových prací}
-Návrh informačního systému pro správu bakalářských prací probíhal ve spolupráci se zástupci společnosti Red Hat.
-\section{Použité technologie}
+Návrh informačního systému pro správu bakalářských prací probíhal ve spolupráci se zástupci společnosti Red Hat. V~průběhu prvních setkání byly určeny funkční požadavky na systém a vypracován základní doménový model celého systému, který byl následně během vývoje upravován. Mezi hlavní funkční požadavky patří:
+\begin{itemize}
+\item Uživatelské účty s~různou úrovní oprávnění.
+\item Správa závěrečných prací dle definovaného procesu.
+\item Možnost nahrávat přílohy.
+\item Diskuse v~podobě komentářů.
+\item Nástroje pro univerzitní vedoucí
+\end{itemize}
 
+
+Dále byly na základě požadavků společnosti Red Hat a zkušeností vývojářů stanoveny nefunkční požadavky. Mezi nejdůležitější patří:
+\begin{itemize}
+\item Grails jako vývojová platforma.
+\item Nasazení systému na OpenShift.
+\item Otevřený zdrojový kód.
+\end{itemize}
+
+
+Pro bližší informace o~návrhu systému a použitých procesech doporučuji přečíst bakalářskou práci Václava Dedíka.
+
+\section{Použité technologie}
 \subsection{Groovy}
-Groovy je dynamický objektově orientovaný programovací jazyk pro platformu Java, který přináší spoustu vlastností a konstrukcí známých z jazyků jako Python, Ruby a Smalltalk. Jednou z řady výhod jazyka Groovy patří díky totožné syntaxi téměř nulová učící křivka pro stávající Java programátory. Mezi nejvýznamnější vlastnosti a vylepšení, které Groovy přináší patří:
+Groovy je dynamický objektově orientovaný programovací jazyk pro platformu Java, který přináší spoustu vlastností a konstrukcí známých z~jazyků jako Python, Ruby a Smalltalk. Jednou z~řady výhod jazyka Groovy patří díky totožné syntaxi téměř nulová učící křivka pro stávající Java programátory. Mezi nejvýznamnější vlastnosti a vylepšení, které Groovy přináší patří:
 
 \begin{itemize}
 \item Rozumné výchozí hodnoty a nastavení
@@ -29,15 +47,13 @@ Groovy je dynamický objektově orientovaný programovací jazyk pro platformu J
 \item Podpora doménových jazyků
 \end{itemize}
 
-Díky přímé kompilaci do java byte kódu mohou programy napsané v Groovy využívat řadu existujících knihoven napsaných v jazyce Java a běžet všude tam, kde je k dispozici Java Runtime Environment.
+Díky přímé kompilaci do java byte kódu mohou programy napsané v~Groovy využívat řadu existujících knihoven napsaných v~jazyce Java a běžet všude tam, kde je k~dispozici Java Runtime Environment.
 
 \subsection{Aplikační rámec Grails}
-Grails je aplikační rámec a platforma pokrývající všechny aspekty vývoje webových aplikací využívající programovací jazyk Groovy. Díky systému zásuvných modulů lze aplikace vyvíjené na této platformě relativně snadno obohatit o nové funkce nebo upravit výchozí chování aplikačního rámce. Detailněji se celou platformou zabývají následující kapitoly.
-
-\subsection{PostgreSQL}
+Grails je aplikační rámec a platforma pokrývající všechny aspekty vývoje webových aplikací využívající programovací jazyk Groovy. Díky systému zásuvných modulů lze aplikace vyvíjené na této platformě relativně snadno obohatit o~nové funkce nebo upravit výchozí chování aplikačního rámce. Detailněji se celou platformou zabývají následující kapitoly.
 
 \subsection{MongoDB}
-MongoDB je dokumentově orientovaná databáze, a jedna z předních NoSQL databází na trhu, s otevřeným zdrojovým kódem. V dokumentově orientovaných databázích se jednotlivé záznamy ukládají do souborů, které jsou následně seskupovány do takzvaných kolekcí. Pokud bychom se pokusili o přirovnání k relační databázi, pak kolekce představuje tabulku a soubory jednotlivé řádky. V případě MongoDB jsou data ukládána ve formátu BSON a mohou být plně dynamická -- nemusí dodržovat žádné definované schéma. NoSQL databáze nabývají v posledních letech na popularitě právě díky možnosti ukládat dynamická data a jejich vysoké škálovatelnosti. Mezi nevýznamnější vlastnosti této databáze patří:
+MongoDB je dokumentově orientovaná databáze, a jedna z~předních NoSQL databází na trhu, s~otevřeným zdrojovým kódem. V~dokumentově orientovaných databázích se jednotlivé záznamy ukládají do souborů, které jsou následně seskupovány do takzvaných kolekcí. Pokud bychom se pokusili o~přirovnání k~relační databázi, pak kolekce představuje tabulku a soubory jednotlivé řádky. V~případě MongoDB jsou data ukládána ve formátu BSON a mohou být plně dynamická -- nemusí dodržovat žádné definované schéma. NoSQL databáze nabývají v~posledních letech na popularitě právě díky možnosti ukládat dynamická data a jejich vysoké škálovatelnosti. Mezi nevýznamnější vlastnosti této databáze patří:
 
 \begin{itemize}
 \item Převod objektových struktur do jazyka JSON je přirozenější než jejich mapování do tabulek relační databáze
@@ -46,10 +62,10 @@ MongoDB je dokumentově orientovaná databáze, a jedna z předních NoSQL datab
 \item GridFS
 \end{itemize}
 
-Systém pro správu závěrečných prací využívá MongoDB primárně ke dvěma účelům. Prvním je ukládání dynamických dat (jako například konfigurace systému). Druhým případem je využití GridFS pro ukládání souborů nahrávaných studenty k jednotlivým diplomovým pracím.
+Systém pro správu závěrečných prací využívá MongoDB primárně ke dvěma účelům. Prvním je ukládání dynamických dat (jako například konfigurace systému). Druhým případem je využití GridFS pro ukládání souborů nahrávaných studenty k~jednotlivým diplomovým pracím a podobenek uživatelů.
 
 
-\subsection{Technologie prezenční vrstvy}
+\subsection{Technologie prezentační vrstvy}
 Prezenční vrstva je implementována za použití řady moderních značkovacích a stylovacích jazyků. Dynamická části jsou skriptovány pomocí jazyka JavaScript a technologie ajax. Mezi nejvýznamnější použité technologie patří:
 
 \begin{itemize}
@@ -59,4 +75,4 @@ Prezenční vrstva je implementována za použití řady moderních značkovací
 \item Twitter Bootstrap
 \end{itemize}
 
-Pro bližší informace o použitých technologiích a návrhu uživatelského rozhraní doporučuji přečíst bakalářskou práci Pavla Dedíka.
+Pro bližší informace o~použitých technologiích a návrhu uživatelského rozhraní doporučuji přečíst bakalářskou práci Pavla Dedíka.

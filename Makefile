@@ -17,5 +17,5 @@ clean:
 clean-all: clean
 	rm -rf *.pdf
 
-recreate: clean-all all
+re: clean-all all
 	evince bp.pdf
