@@ -179,7 +179,7 @@ Na příkladu výše lze vidět, že samotné uložení souboru do databáze tvo
 V~rámci vyvinutého systému jsem vytvořil controller \texttt{com.redhat.grails\\.upload.UploadController}, jehož akce \texttt{upload} slouží jako jediný koncový bod pro příjem souborů v~celém systému. Místo zpracování přijatého souboru však tato akce za použití servisní třídy \texttt{UploadService} v~systému vyvolá událost obsahující data potřebná ke zpracování. Konkrétní vyvolané události lze specifikovat pomocí parametru \texttt{topic} zaslaného jako součást HTTP požadavku spolu se souborem. Logika pro zpracování přijatého souboru je potom součásti metody reagující na vyvolanou událost. Systém pro správu diplomových prací používá události \texttt{avatar} a \texttt{thesis}. První slouží k~archivaci profilových obrázky uživatelů, druhý k~archivaci souborů asociovaných s~pracemi studentů. Obsluhu těchto události lze najít ve třídě \texttt{com.redhat.theses.listeners.UploadListenerService}
 
 \subsubsection{\textbf{Knihovna značek}}
-Pro snadnější použití nástroje Fine Uploader a eliminaci redundantního kódu jsem vytvořil knihovnu značek \texttt{UploaderTaglib}, která slouží k zapouzdření konfigurace a integraci s platformou Grails -- včetně podpory internacionalizace nástroje.
+Pro snadnější použití nástroje Fine Uploader a eliminaci redundantního kódu jsem vytvořil knihovnu značek \texttt{UploaderTaglib}, která slouží k~zapouzdření konfigurace a integraci s~platformou Grails -- včetně podpory internacionalizace nástroje.
 \begin{example}
     \centering
     \begin{lstlisting}[language=Java]

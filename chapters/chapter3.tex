@@ -51,14 +51,14 @@ Detailní popis celého doménového modelu je obsažen v~práci Václava Dedík
 Platforma Grails využívá pro persistenci doménových tříd do databáze nástroj GORM (Grails Object Relational Mapping). Označení \uv{objektově-relační mapování} v~názvu je lehce matoucí, neboť dnes existují i implementace GORM API pro řadu nerelačních databází. Systém pro správu diplomových prací využívá rozhraní GORM pro práci s~databázemi MongoDB a PostgreSQL. Ačkoliv všechny implementace rozhraní GORM poskytují stejné API, liší se v~rozsahu a poskytovaných funkcích (v~případě NoSQL databází například nemá smysl konfigurace tabulek). V~rámci této kapitoly proto uvažuji výchozí implementací určenou pro relační databáze, kam je mapována i převážná většina doménových tříd v~ve vyvinutém systému. V~souladu s~filosofií platformy Grails o~využívání existujících knihoven se ani v~případě GORM nejedná o~zcela nové řešení a základ výchozí implementace je tvořen aplikačním rámcem Hibernate.
 
 \subsubsection{\textbf{Persistenční logika}}
-Jedním z principů popisovaným návrhovým vzorem \uv{Data Mapper} je oddělení persistenční logiky a doménové třídy -- tento návrh přispívá ke snížení závislosti na konkrétním řešení persistence. Ve srovnání s \uv{Active Record}, kde je persistenční logika přímo součásti doménových tříd, je však použití tohoto řešení méně přehledné a pohodlné. GORM jakožto řešení využívající Hibernate je samozřejmě také založen na vzoru \uv{Data Mapper}, avšak díky dynamické podstatě programovacího jazyka Groovy umožňuje využit přístup podobný \uv{Active Record}. Persistenční CRUD operace jsou na jednotlivých entitách zpřístupněny pomocí \uv{magických} metod, což jsou metody přidané objektu mimo definici třídy pomocí metaprogramování.
+Jedním z~principů popisovaným návrhovým vzorem \uv{Data Mapper} je oddělení persistenční logiky a doménové třídy -- tento návrh přispívá ke snížení závislosti na konkrétním řešení persistence. Ve srovnání s~\uv{Active Record}, kde je persistenční logika přímo součásti doménových tříd, je však použití tohoto řešení méně přehledné a pohodlné. GORM jakožto řešení využívající Hibernate je samozřejmě také založen na vzoru \uv{Data Mapper}, avšak díky dynamické podstatě programovacího jazyka Groovy umožňuje využit přístup podobný \uv{Active Record}. Persistenční CRUD operace jsou na jednotlivých entitách zpřístupněny pomocí \uv{magických} metod, což jsou metody přidané objektu mimo definici třídy pomocí metaprogramování.
 
 \begin{example}
 \centering
 \begin{lstlisting}[language=Java]
-    // ziskani tematu s id=1 z databaze
+    // ziskani tematu s~id=1 z~databaze
     def topic = Topic.get(1)
-    // vyhledani tematu s nazvem foo
+    // vyhledani tematu s~nazvem foo
     topic = Topic.findByTitle('foo')
 
     // editace tematu
@@ -84,14 +84,14 @@ V~rámci servisních tříd funguje na základě jména třídy a jména atribut
 Jednotlivé metody probíhají vždy v~rámci aktuální transakce. Pokud žádná při volání metody neexistuje, zahájí se transakce nová
 \end{itemize}
 
-Servisní třídy jsou v rámci kódu vyvinutého systému rozdělení do několika balíčků:
+Servisní třídy jsou v~rámci kódu vyvinutého systému rozdělení do několika balíčků:
 \begin{itemize}
 \item \textbf{com.redhat.theses} \\
-Práce s doménovými třídami.
+Práce s~doménovými třídami.
 \item \textbf{com.redhat.theses.auth} \\
 Servisní třídy zajišťující autentizaci
 \item \textbf{com.redhat.theses.config} \\
-Servisní třídy obsahující logiku pro práci s konfigurací.
+Servisní třídy obsahující logiku pro práci s~konfigurací.
 \item \textbf{com.redhat.theses.listeners} \\
 Správa asynchronních událostí
 \item \textbf{com.redhat.grails} \\
@@ -99,30 +99,30 @@ Logika práce se soubory.
 \end{itemize}
 
 \section{Prezenční vrstva}
-Základem prezenční vrstvy jsou takzvaná views. Jedná se v podstatě o šablony, jejichž jediným účelem po naplnění daty je prezentace těchto data uživateli. Ačkoliv lze tuto komponentu v rámci Grails implementovat pomocí řady prezentačních rámců (Velocity, Freemarker,  Thymeleaf), doporučuji použít výchozí řešení založeném na GSP a šablonách SiteMesh -- důvodem je hluboká integrace s ostatními částmi platformy.
+Základem prezenční vrstvy jsou takzvaná views. Jedná se v~podstatě o~šablony, jejichž jediným účelem po naplnění daty je prezentace těchto data uživateli. Ačkoliv lze tuto komponentu v~rámci Grails implementovat pomocí řady prezentačních rámců (Velocity, Freemarker,  Thymeleaf), doporučuji použít výchozí řešení založeném na GSP a šablonách SiteMesh -- důvodem je hluboká integrace s~ostatními částmi platformy.
 
 \subsection{Knihovny značek}
-Jedním ze základních principů MVC je oddělení prezentační vrstvy a modelu. V~případě implementací s~oddělenou komponentou controller to znamená i omezení přímé komunikace mezi modelem a view  -- ideálně by měla být všechna potřebná data předána view z~controlleru. V praxi je však striktní oddělení view a modelu velmi obtížné neboť v moderních aplikacích jsou jednotlivá view často dynamická. Důsledkem tak může být přenášení nepotřebných dat nebo zanášení aplikační logiky do implementace daného view. Volání metod obsahujících aplikační logiku přímo z view však také není žádoucí, neboť na prezentační vrstvě často pracují programátoři zaměření na prezentační vrstvu, bez znalosti aplikačního modelu.
+Jedním ze základních principů MVC je oddělení prezentační vrstvy a modelu. V~případě implementací s~oddělenou komponentou controller to znamená i omezení přímé komunikace mezi modelem a view  -- ideálně by měla být všechna potřebná data předána view z~controlleru. V~praxi je však striktní oddělení view a modelu velmi obtížné neboť v~moderních aplikacích jsou jednotlivá view často dynamická. Důsledkem tak může být přenášení nepotřebných dat nebo zanášení aplikační logiky do implementace daného view. Volání metod obsahujících aplikační logiku přímo z~view však také není žádoucí, neboť na prezentační vrstvě často pracují programátoři zaměření na prezentační vrstvu, bez znalosti aplikačního modelu.
 
 
-Grails řeší tento problém možností definovat doplňující knihovny značek (anglicky \uv{tag libraries}), které umožní používat požadovanou logiku prostřednictvím GSP značek. Novou knihovnu lze vytvořit založením třídy v adresáři \texttt{grails-app/taglib} nebo pomocí příkazu grails \texttt{create-tag-lib}
+Grails řeší tento problém možností definovat doplňující knihovny značek (anglicky \uv{tag libraries}), které umožní používat požadovanou logiku prostřednictvím GSP značek. Novou knihovnu lze vytvořit založením třídy v~adresáři \texttt{grails-app/taglib} nebo pomocí příkazu grails \texttt{create-tag-lib}
 
-V rámci vyvíjeného systému vzniklo těchto knihoven několik, následující seznam uvádí některé z nich (jednotlivé položky seznamu jsou ve tvaru \uv{tříd -- jmenný prostor})
+V~rámci vyvíjeného systému vzniklo těchto knihoven několik, následující seznam uvádí některé z~nich (jednotlivé položky seznamu jsou ve tvaru \uv{tříd -- jmenný prostor})
 \begin{itemize}
 \item \textbf{Ajax4GSPTagLib -- a4g} \\
-Knihovna značek pro práci s technologií AJAX.
+Knihovna značek pro práci s~technologií AJAX.
 \item \textbf{RichGSPTagLib -- richg}\\
 Knihovna rozšiřující standardní sadu GSP značek.
 \item \textbf{NotificationTagLib -- notification}\\
 Značky pro práci se systémovými notifikacemi.
 \item \textbf{GridFileTagLib -- file}\\
-Knihovna pro přímý přístup k souborům uloženým v databázi MongoDB.
+Knihovna pro přímý přístup k~souborům uloženým v~databázi MongoDB.
 \item \textbf{UploaderTagLib -- u}\\
 Knihovna pro nahrávání souborů
 \end{itemize}
 
 \section{Komponenta controller }
-Jak jsem pospal výše, controller slouží k propojení view a příslušného modelu. Tato Komponenta však zajišťuje také komunikaci uživatele s modelem. V případě webových rámců je tato funkce zajištěna pomocí mapování metod controlleru, nazývaných akce, na jednotlivé URL aplikace. Obdobně jako servisní třídy, controllery nabízí možnost automatického vkládání závislostí při dodržení konvencí. Příklad níže uvádí akci dostupnou na URL \texttt{/topic/list} pomocí metody \texttt{GET} protokolu HTTP.
+Jak jsem pospal výše, controller slouží k~propojení view a příslušného modelu. Tato Komponenta však zajišťuje také komunikaci uživatele s~modelem. V~případě webových rámců je tato funkce zajištěna pomocí mapování metod controlleru, nazývaných akce, na jednotlivé URL aplikace. Obdobně jako servisní třídy, controllery nabízí možnost automatického vkládání závislostí při dodržení konvencí. Příklad níže uvádí akci dostupnou na URL \texttt{/topic/list} pomocí metody \texttt{GET} protokolu HTTP.
 
 \begin{example}
 \centering
@@ -147,7 +147,7 @@ Systém pro správu diplomových prací obsahuje řadu controllerů rozdělenýc
 \item \textbf{com.redhat.theses} \\
 Obsluha požadavků pracujících se základními doménovými třídami.
 \item \textbf{com.redhat.theses.auth} \\
-Obsluha požadavků souvisejících s uživateli a autentizací -- například přihlášení.
+Obsluha požadavků souvisejících s~uživateli a autentizací -- například přihlášení.
 \item \textbf{com.redhat.theses.ajax} \\
 Obsluha požadavků zaslaných pomocí technologie AJAX.
 \item \textbf{com.redhat.grails} \\
