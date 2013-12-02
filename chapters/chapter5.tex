@@ -1,2 +1,195 @@
-\chapter{Možné úpravy a rozšíření systému}
-\blindtext
+\chapter{Implementace správy souborů}
+
+\section{Archivace souborů}
+Jelikož žádný z~dostupných modulů pro práci s~Mongo GridFS nevyhovoval ani základním stanoveným požadavkům, vyvinul jsem jako součást systému pro správu bakalářských prací s~využitím získaných poznatků rozhraní vlastní -- pracovně nazvané MongoFile. Aktuálně se jedná o~součást vyvinutého informačního systému, avšak implementace umístěná v~balíku \texttt{com.redhat.grails.mongodb} počítá s~budoucím osamostatnění projektu v~podobně zásuvného modulu platformy Grails.
+
+\subsection{Servisní třída MongoFile}
+Hlavní část implementace je tvořena servisní třídou \texttt{GridFileService} poskytující rozhraní pro manipulaci se soubory. Při návrhu MongoFile jsem zohlednil dva typy souborů:
+\begin{itemize}
+\item Soubory vázané na doménovou třídu
+\item Soubory bez doménových vazeb
+\end{itemize}
+Pro rozlišení mezi těmito soubory využívá navržené rozhraní možnost definovat několik kořenových kyblíčku GridFS v~rámci jedné databáze. Soubory jsou ukládány do kyblíčku odvozeného z~názvu vázané doménové třídy, případně lze toto jméno změnit definováním statického atributu
+\\\texttt{bucketMapping} v~dané doménové třídě. Soubory bez doménové vazby jsou ukládány do kyblíčku výchozího, nazvaného \texttt{fs}. Vazba na konkrétní instanci doménové třídy je tvořena pomocí následujících atributů v~souborových metadatech:
+\begin{itemize}
+\item \texttt{id} slouží jako identifikátor vázané entity.
+\item \texttt{group} klasifikuje souboru v~rámci jedné doménové třídy.
+\end{itemize}
+Jako identifikátor může sloužit hodnota libovolného atributu vázané entity. Ve výchozím nastavení je použita hodnota atributu \texttt{id}.
+
+\begin{example}
+    \centering
+    \begin{lstlisting}
+
+{
+    "metadata" : { "group" : "avatar", "id" : NumberLong(6) }
+}
+    \end{lstlisting}
+    \caption{Metadata souboru v~kolekci \texttt{user.files}.}
+\end{example}
+
+
+\subsubsection{\textbf{Uložení souboru do databáze}}
+Rozhraní MongoFile poskytuje několik metod pro uložení souboru do GridFS. Základem je metoda \texttt{save} obsahující hlavní logiku vkládání nového souboru. Při volání této metody je potřeba uvést následující parametry:
+\begin{enumerate}
+\item \texttt{content}
+Obsah ukládaného souboru. Zdrojem dat může být instance třídy \texttt{File}, \texttt{MultipartFile}, \texttt{InputStream} nebo pole bytů.
+\item \texttt{id}
+Identifikátor vázané entity nebo texttt{null} v~případě souboru bez vazby.
+\item \texttt{bucket}
+Kořenový kyblíček použitého GridFS. V~případě hodnoty \texttt{null} se použije výchozí kyblíček.
+\item \texttt{group}
+Zařazení souboru do skupiny.
+\item \texttt{metadata}
+Doplňující informace o~souboru.
+\item \texttt{filename}
+Jméno ukládaného souboru. Pokud je to možné, je jako výchozí hodnota použito jméno původního souboru.
+\item \texttt{delete}
+Způsob jakým postupovat v~případě již existujícího souboru se stejným \texttt{mongoId} nebo kombinací atributů \texttt{id} a \texttt{group}.
+\\V případě hodnoty \texttt{true} budou existující soubory smazány.
+\item \texttt{mongoId}
+Unikátní identifikátor dokumentu uloženého v~kolekci \texttt{files}.
+\end{enumerate}
+Z~množství parametrů metody \texttt{save} je zřejmé, že její použití není příliš pohodlné. Metoda navíc umožňuje libovolnou kombinaci hodnot a uživatele nijak nenutí dodržovat stanovené konvence pro jména kyblíčků či nastavení metadat. Z~tohoto důvodu obsahuje třída \texttt{GridFileService} také přetíženou variantu \texttt{save} umožňující použití jmenných parametrů v~kombinaci s~výchozími hodnotami.
+
+\begin{example}
+    \centering
+    \begin{lstlisting}[language=Java]
+def thesis = Thesis.get(1)
+def file = new File('/home/jcechace/file.zip')
+
+// ulozeni souboru bez domenove vazby
+gridFileService.save(file, null, null, null, null,
+    "standalone_file.zip", false, null)
+
+// s~pouzitim jmenych atributu
+gridFileService.save(content: file, filename:
+    "standalone_file.zip")
+
+
+// ulozeni souboru s~domenovou vazbou
+gridFileService.save(file, 1, "thesis", "archives",
+    null, "bound_file.zip", false, null)
+
+// s~pouzitim jmenych atributu
+gridFileService.save(content: file, filename:
+    "bound_file", object: thesis)
+    \end{lstlisting}
+    \caption{Uložení nového souboru do databáze.}
+\end{example}
+
+\subsubsection{\textbf{Získání souboru z~databáze}}
+Rozhraní MongoFile umožňuje uložené soubory z~GridFS získat buďto na základě informací uložených v~metadatech nebo přímo pomocí \texttt{\_id} dokumentu v~kolekci \texttt{files}.
+
+\begin{example}
+    \centering
+    \begin{lstlisting}[language=Java]
+def thesis = Thesis.get(1)
+
+// ziskani souboru z~kyblicku "thesis" podle _id dokumentu
+def file = gridFileService
+    .getFileByUniversalMongoId(mongoId, "thesis")
+
+// ziskani dokumentu z~kyblicku podle metadat
+def file = gridFileService
+    .getFile(['id': 1, group: "archives"], "thesis")
+
+// misto konkreniho kyblicku lze v~uvest domenovou tridu
+def file = gridFileService
+    .getFile(['id': 1, group: "archives"], Thesis.class)
+    \end{lstlisting}
+    \caption{Získání souboru z~databáze.}
+\end{example}
+
+V~případě vyhledávání souboru na základě metadat vrátí volání metody \texttt{getAllFiles} pouze jednu instanci \texttt{GridFSDBFile} reprezentující soubor s~nejnižším \texttt{\_id}. Pro získání všech vyhovujících souborů jsou k~dispozici přetížené varianty vracející seznam objektů typu \texttt{GridFSDBFile}.
+
+\subsection{Servírování souboru klientovi}
+Poslední, avšak neméně důležitou, schopností MongoFile je zaslání získaného souboru klientské aplikaci. Metoda \texttt{serveFile} třídy \texttt{GridFileService} nastaví potřebné hlavičky, jako například \texttt{content-type}, a zapíše požadovaný soubor do výstupního proudu HTTP odpovědi.
+\begin{example}
+    \centering
+    \begin{lstlisting}[language=Java]
+// ziskani souboru s~databaze
+def file = gridFileService
+    .getFile(['id': 1, group: "archives"], Thesis.class)
+
+// zapsani souboru do http odpovedi
+gridFileService.serveFile(response, file, true)
+    \end{lstlisting}
+    \caption{Servírování souboru klientovi.}
+\end{example}
+Na příkladu lze vidět, že volání metody \texttt{serveFile} vyžaduje tři parametry:
+\begin{enumerate}
+\item \texttt{response} Objekt reprezentující odpovědi HTTP protokolu.
+\item \texttt{file} Instanci třídy \texttt{GridFSDBFile} zasílanou klientovi.
+\item \texttt{save} Vynucení stažení souboru webovým prohlížečem.
+\end{enumerate}
+Pravděpodobně nejčastější použití této metody bude jako součást akce v~controlleru. Proto jsem v~rámci implementace MongoFile vytvořil jednoduchý controller \texttt{GridFileController}, schopný při volání akce \texttt{serveFile} zaslat naservírovat soubor s~požadovaným identifikátorem.
+
+\subsubsection{\textbf{Knihovna značek pro práci s~GridFile}}
+Pro usnadnění přístupu k~souborům z~prezentační vrstvy jsem implementoval také knihovnu značek \texttt{GridFileTagLib}. Knihovna využívá jmenný prostor \texttt{grid} a obsahuje modifikované verze značek \texttt{link} a \texttt{createLink} ze standardní knihovny Grails. První značka slouží pro vytvoření hypertextového odkazu na soubor, druhá pak pouze pro sestavení adresy využitelné například v~html značce \texttt{<img>}.
+
+\section{Nahrávání souborů}
+Implementace funkcionality pro nahrávání souborů se skládá ze dvou částí. Klienta umožňujícího zaslat soubory na server, který následně interpretuje výsledek provedené operace v~uživateli přívětivé podobně. Právě tuto část řeší použití nástroje Fine Uploader. Implementací serverové části, zajišťující zpracování přijatých dat, a její spolupráci s~klientskou části aplikace se zabývají následující podkapitoly.
+
+\subsection{Přijetí a zpracování nahrávaných dat}
+Celý proces nahrání souboru od uživatele na server lze rozdělit do 4 kroků
+\begin{enumerate}
+\item Uživatel vybere soubor.
+\item Klientská aplikace zašle data na server.
+\item Server příjme zaslaná data, zpracuje je a zašle zpět odpověď.
+\item Uživateli je zobrazen výsledek.
+\end{enumerate}
+
+Z~úvodu kapitoly je zřejmě, že Fine Uploader se z~vetší části postará o~všechny body s~výjimkou čísla tři. Příjem a zpracování dat se při použití architektury MVC běžně provádí vytvořením akce v~příslušném controlleru. V~informačních systémech je však nezřídka potřeba zpracovávat soubory určené pro různé části systému různým způsobem. Definování akce  pro každý druh souborů však často povede k~množství opakujícího se kódu.
+
+\begin{example}
+    \centering
+    \begin{lstlisting}[language=Java]
+
+def uploadToMongo() {
+    try {
+        MultipartFile file = ((MultipartHttpServletRequest) request)
+            .getFile('qqfile')
+
+        // ulozeni souboru
+        def saved = gridFileService.save(file,
+                object: springSecurityService.currentUser,
+                group: 'files',)
+
+        // vraceni vysledku
+        return render(text: [success: true] as JSON,
+            contentType: 'text/json')
+    } catch (Exception e) {
+        // nastala chyba
+        log.error('Error during file upload', e)
+        def errorMessage = message(code: 'uploader.error.upload')
+
+        return render(text: [success: false, message:
+            errorMessage] as JSON,
+            contentType: 'text/json')
+    }
+}
+    \end{lstlisting}
+    \caption{Akce pro zpracování přijatého souboru}
+\end{example}
+
+Na příkladu výše lze vidět, že samotné uložení souboru do databáze tvoří jen minimální část celé akce. Zbytek kódu se proto bude nejspíš opakovat ve většině podobných metod. V~systému pro správu diplomových prací minimalizuji množství takového kódu pomocí reaktivního přístupu.
+
+\subsubsection{\textbf{Příjem souborů}}
+V~rámci vyvinutého systému jsem vytvořil controller \texttt{com.redhat.grails\\.upload.UploadController}, jehož akce \texttt{upload} slouží jako jediný koncový bod pro příjem souborů v~celém systému. Místo zpracování přijatého souboru však tato akce za použití servisní třídy \texttt{UploadService} v~systému vyvolá událost obsahující data potřebná ke zpracování. Konkrétní vyvolané události lze specifikovat pomocí parametru \texttt{topic} zaslaného jako součást HTTP požadavku spolu se souborem. Logika pro zpracování přijatého souboru je potom součásti metody reagující na vyvolanou událost. Systém pro správu diplomových prací používá události \texttt{avatar} a \texttt{thesis}. První slouží k~archivaci profilových obrázky uživatelů, druhý k~archivaci souborů asociovaných s~pracemi studentů. Obsluhu těchto události lze najít ve třídě \texttt{com.redhat.theses.listeners.UploadListenerService}
+
+\subsubsection{\textbf{Knihovna značek}}
+Pro snadnější použití nástroje Fine Uploader a eliminaci redundantního kódu jsem vytvořil knihovnu značek \texttt{UploaderTaglib}, která slouží k zapouzdření konfigurace a integraci s platformou Grails -- včetně podpory internacionalizace nástroje.
+\begin{example}
+    \centering
+    \begin{lstlisting}[language=Java]
+<u:uploader topic="thesis" params="${[id: thesisInstance.id]}"
+    callbacks="[complete: 'addToFileList(\'file-list\',\'list-info\')']">
+    <u:trigger id="triggerUpload" class="tms-btn pull-right">
+        <i class="icon-upload"></i>
+        <g:message code="uploader.text.startUpload.button"/>
+    </u:trigger>
+</u:uploader>
+    \end{lstlisting}
+    \caption{Použití nástroje Fine Uploader pomocí definovaných značek}
+\end{example}
