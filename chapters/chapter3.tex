@@ -1,5 +1,5 @@
 \chapter{Architektura aplikací na platformě Grails}
-Grails, stejně jako řado jiných rámců pro vývoj aplikací obsahujících nějakou formu uživatelského rozhraní, staví využívá návrhového vzoru Model, View, Controller (dále jen MVC). Ačkoliv jednotná definice tohoto návrhového vzoru prakticky neexistuje a mírně se liší mezi jednotlivými implementaci, obecně se vždy jedná o~formu oddělení aplikační a prezentační logiky. Jak je patrné z~názvu, aplikace postavené na architektuře MVC lze rozdělit do tří komponent (vrstev):
+Grails, stejně jako řada jiných rámců pro vývoj aplikací obsahujících nějakou formu uživatelského rozhraní, využívá návrhového vzoru Model, View, Controller\footnote{V průběhu práce se uvádí anglická terminologie, běžně rozšířená v oboru.} (dále jen MVC). Ačkoliv jednotná definice tohoto vzoru prakticky neexistuje a mírně se liší mezi jednotlivými implementaci, obecně se vždy jedná o~formu oddělení aplikační a prezentační logiky. Jak je patrné z~názvu, aplikace postavené na architektuře MVC lze rozdělit do tří komponent (vrstev):
 
 \begin{itemize}
 \item \textbf{Model}\\
@@ -7,28 +7,27 @@ Zahrnuje aplikační logiku systému včetně doménových tříd.
 \item \textbf{View}\\
 Tvoří základ prezentační vrstvy. Hlavním účelem této komponenty je zobrazení informací uživateli.
 \item \textbf{Controller}\\
-Prostřednictvím view  přijímá a zobrazuje informace uživateli. Zároveň také složí jako komunikační most mezi Modelem a View
+Zajišťuje komunikaci s uživatelem a prostřednictvím view zobrazuje požadované informace.
 \end{itemize}
 
 Poprvé tento návrhový vzor popsal v~roce 1979 norský profesor Trygve Reenskaug. O~rok později vznikla jako součást programovacího jazyka Smalltalk-80 první implementace této architektury. Specifické pro tuto implementaci bylo spojení komponent view a controller. Tento typ MVC se i dnes používá u~rámců pro GUI, kde ovládací prvky nejen zobrazují informace, ale také přijímají uživatelský vstup. Rozdělení všech tří komponent je pak běžnou praxí u~rámců pro vývoj webových aplikací, jakým je například Grails.
 
 \section{Adresářová struktura}
-Stejně jako aplikační rámec Spring, který tvoří základ celé platformy, umožňuje i Grails jednotlivé komponenty aplikace, jako například controller, více způsoby. Dostupná je tedy možnost přímé registrace komponenty v~konfiguračním souboru nebo anotace jednotlivých tříd. Tyto postupy však nejsou příliš používané. V~předchozí kapitole byl popsán princip  \uv{Convention over Configuration} a jedním ze způsobu uplatnění tohoto principu je dodržování stanovené adresářové struktury. Všechny aplikace na této platformě proto využívají jednotnou adresářovou strukturu s~adresáři vyhrazenými pro příslušné komponenty. Výčet níže uvádí vybrané adresáře.
-
+Stejně jako v aplikační rámec Spring umožňuje i Grails definovat jednotlivé komponenty aplikace více způsoby. Dostupná je tedy možnost přímé registrace komponenty v~konfiguračním souboru nebo anotace jednotlivých tříd, avšak tyto postupy nejsou příliš používané. V~předchozí kapitole byl popsán princip  \uv{Convention over Configuration} a jedním ze způsobu uplatnění tohoto přístupu je dodržování stanovené adresářové struktury. Všechny aplikace na této platformě proto využívají jednotnou adresářovou strukturu s~adresáři vyhrazenými pro příslušné komponenty. Následující výčet uvádí vybrané adresáře.\cite{grails-documentation}
 
 \begin{itemize}
 \item \textbf{grails-app/conf}\\
 Adresář \texttt{conf} je určen pro veškeré konfigurační soubory aplikace.
 \item \textbf{grails-app/controllers}\\
-Adresář \texttt{controllers} je určen pro controllery a tzv. \uv{Command Objects}
+Adresář \texttt{controllers} je určen pro controllery.
 \item \textbf{grails-app/domain}\\
 Adresář \texttt{domain} je určen pro doménové třídy
 \item \textbf{grails-app/i18n}\\
 Adresář \texttt{i18n} je určen pro soubory s~texty jednotlivých jazykových mutací aplikace.
 \item \textbf{grails-app/services}\\
-Adresář \texttt{i18n} je uren pro servisní třídy
+Adresář \texttt{services} je určen pro servisní třídy
 \item \textbf{grails-app/taglib}\\
-Adresář \texttt{i18n} je určen pro knihovny značek.
+Adresář \texttt{taglib} je určen pro knihovny značek.
 \item \textbf{grails-app/views}\\
 Adresář \texttt{views} je určen pro pohledy prezentační vrstvy.
 \end{itemize}
@@ -45,20 +44,23 @@ Doménové třídy představují v~rámci aplikace reprezentaci doménového mod
 \item \textbf{Thesis}: konkrétní práce konkrétního studenta.
 \item \textbf{Application}: přihláška studenta k~tématu závěrečné práce.
 \end{itemize}
-Detailní popis celého doménového modelu je obsažen v~práci Václava Dedíka, v~příloze lze najít UML diagram modelu.
+Detailní popis celého doménového modelu je obsažen v~práci Václava Dedíka\cite{vena-bp}, v~příloze lze najít UML diagram modelu.
 
 \subsection{Mapování doménových tříd do databáze}
-Platforma Grails využívá pro persistenci doménových tříd do databáze nástroj GORM (Grails Object Relational Mapping). Označení \uv{objektově-relační mapování} v~názvu je lehce matoucí, neboť dnes existují i implementace GORM API pro řadu nerelačních databází. Systém pro správu diplomových prací využívá rozhraní GORM pro práci s~databázemi MongoDB a PostgreSQL. Ačkoliv všechny implementace rozhraní GORM poskytují stejné API, liší se v~rozsahu a poskytovaných funkcích (v~případě NoSQL databází například nemá smysl konfigurace tabulek). V~rámci této kapitoly proto uvažuji výchozí implementací určenou pro relační databáze, kam je mapována i převážná většina doménových tříd v~ve vyvinutém systému. V~souladu s~filosofií platformy Grails o~využívání existujících knihoven se ani v~případě GORM nejedná o~zcela nové řešení a základ výchozí implementace je tvořen aplikačním rámcem Hibernate.
+Platforma Grails využívá pro persistenci doménových tříd do databáze nástroj GORM (Grails Object Relational Mapping). Označení \uv{objektově-relační mapování} v~názvu je lehce matoucí, neboť dnes existují i implementace GORM API pro řadu nerelačních databází. Systém pro správu diplomových prací využívá rozhraní GORM pro práci s~databázemi MongoDB a PostgreSQL.
+
+
+Ačkoliv všechny implementace rozhraní GORM poskytují stejné API, liší se v~rozsahu a poskytovaných funkcích (v~případě NoSQL databází například nemá smysl konfigurace tabulek). V~rámci této kapitoly proto uvažuji výchozí implementaci určenou pro relační databáze, kam je mapována i převážná většina doménových tříd ve vyvinutém systému. V~souladu s~filosofií platformy Grails o~využívání existujících knihoven se ani v~případě GORM nejedná o~zcela nové řešení a základ výchozí implementace je tvořen aplikačním rámcem Hibernate.
 
 \subsubsection{\textbf{Persistenční logika}}
-Jedním z~principů popisovaným návrhovým vzorem \uv{Data Mapper} je oddělení persistenční logiky a doménové třídy -- tento návrh přispívá ke snížení závislosti na konkrétním řešení persistence. Ve srovnání s~\uv{Active Record}, kde je persistenční logika přímo součásti doménových tříd, je však použití tohoto řešení méně přehledné a pohodlné. GORM jakožto řešení využívající Hibernate je samozřejmě také založen na vzoru \uv{Data Mapper}, avšak díky dynamické podstatě programovacího jazyka Groovy umožňuje využit přístup podobný \uv{Active Record}. Persistenční CRUD operace jsou na jednotlivých entitách zpřístupněny pomocí \uv{magických} metod, což jsou metody přidané objektu mimo definici třídy pomocí metaprogramování.
+Jedním z~principů popisovaným návrhovým vzorem \uv{Data Mapper} je oddělení persistenční logiky a doménové třídy -- tento návrh přispívá ke snížení závislosti na konkrétním řešení persistence. Ve srovnání s~\uv{Active Record}, kde je persistenční logika přímo součásti doménových tříd, je však použití tohoto řešení méně přehledné a pohodlné. GORM, jakožto řešení využívající Hibernate je samozřejmě také založen na vzoru \uv{Data Mapper}, avšak díky dynamické podstatě programovacího jazyka Groovy umožňuje využit přístup podobný \uv{Active Record}. Persistenční CRUD operace jsou na jednotlivých entitách zpřístupněny pomocí \uv{magických} metod, což jsou metody přidané objektu mimo definici třídy pomocí metaprogramování.
 
 \begin{example}
 \centering
 \begin{lstlisting}[language=Java]
-    // ziskani tematu s~id=1 z~databaze
+    // ziskani tematu s id=1 z databaze
     def topic = Topic.get(1)
-    // vyhledani tematu s~nazvem foo
+    // vyhledani tematu s nazvem foo
     topic = Topic.findByTitle('foo')
 
     // editace tematu
@@ -78,13 +80,13 @@ Jedním z~principů popisovaným návrhovým vzorem \uv{Data Mapper} je oddělen
 Účelem servisních tříd je zapouzdření komplexní aplikační logiky -- tedy takové logiky, která jde nad rámec základních CRUD operací nebo pracuje s~více zdroji zároveň. Při dodržení stanovených konvencí přináší servisní třídy několik funkcí, které běžné třídy neposkytují.
 
 \begin{itemize}
-\item \textbf{Vkládání závislostí}
+\item \textbf{Vkládání závislostí}\\
 V~rámci servisních tříd funguje na základě jména třídy a jména atributu automatické vkládání závislosti.
 \item \textbf{Transakce}\\
-Jednotlivé metody probíhají vždy v~rámci aktuální transakce. Pokud žádná při volání metody neexistuje, zahájí se transakce nová
+Jednotlivé metody probíhají vždy v~rámci aktuální transakce. Pokud žádná při volání metody neexistuje, zahájí se transakce nová.
 \end{itemize}
 
-Servisní třídy jsou v~rámci kódu vyvinutého systému rozdělení do několika balíčků:
+Servisní třídy jsou v~rámci kódu vyvinutého systému rozděleny do několika balíčků:
 \begin{itemize}
 \item \textbf{com.redhat.theses} \\
 Práce s~doménovými třídami.
@@ -98,11 +100,11 @@ Správa asynchronních událostí
 Logika práce se soubory.
 \end{itemize}
 
-\section{Prezenční vrstva}
-Základem prezenční vrstvy jsou takzvaná views. Jedná se v~podstatě o~šablony, jejichž jediným účelem po naplnění daty je prezentace těchto data uživateli. Ačkoliv lze tuto komponentu v~rámci Grails implementovat pomocí řady prezentačních rámců (Velocity, Freemarker,  Thymeleaf), doporučuji použít výchozí řešení založeném na GSP a šablonách SiteMesh -- důvodem je hluboká integrace s~ostatními částmi platformy.
+\section{Prezentační vrstva}
+Základem prezentační vrstvy jsou takzvaná views. Jedná se v~podstatě o~šablony, jejichž jediným účelem po naplnění daty je prezentace těchto data uživateli. Ačkoliv lze tuto komponentu v~rámci Grails implementovat pomocí řady prezentačních rámců (Velocity, Freemarker,  Thymeleaf), doporučuji použít výchozí řešení založeném na GSP a šablonách SiteMesh -- důvodem je hluboká integrace s~ostatními částmi platformy.
 
 \subsection{Knihovny značek}
-Jedním ze základních principů MVC je oddělení prezentační vrstvy a modelu. V~případě implementací s~oddělenou komponentou controller to znamená i omezení přímé komunikace mezi modelem a view  -- ideálně by měla být všechna potřebná data předána view z~controlleru. V~praxi je však striktní oddělení view a modelu velmi obtížné neboť v~moderních aplikacích jsou jednotlivá view často dynamická. Důsledkem tak může být přenášení nepotřebných dat nebo zanášení aplikační logiky do implementace daného view. Volání metod obsahujících aplikační logiku přímo z~view však také není žádoucí, neboť na prezentační vrstvě často pracují programátoři zaměření na prezentační vrstvu, bez znalosti aplikačního modelu.
+Jedním ze základních principů MVC je oddělení prezentační vrstvy a modelu. V~případě implementací s~oddělenou komponentou controller to znamená i omezení přímé komunikace mezi modelem a view  -- ideálně by měla být všechna potřebná data předána view z~controlleru. V~praxi je však striktní oddělení view a modelu velmi obtížné, neboť v~moderních aplikacích jsou jednotlivá view často dynamická. Důsledkem tak může být přenášení nepotřebných dat nebo zanášení aplikační logiky do implementace daného view. Volání metod obsahujících aplikační logiku přímo z~view však také není žádoucí, neboť na prezentační vrstvě často pracují programátoři zaměření na prezentační vrstvu, bez znalosti aplikačního modelu.
 
 
 Grails řeší tento problém možností definovat doplňující knihovny značek (anglicky \uv{tag libraries}), které umožní používat požadovanou logiku prostřednictvím GSP značek. Novou knihovnu lze vytvořit založením třídy v~adresáři \texttt{grails-app/taglib} nebo pomocí příkazu grails \texttt{create-tag-lib}
@@ -122,7 +124,7 @@ Knihovna pro nahrávání souborů
 \end{itemize}
 
 \section{Komponenta controller }
-Jak jsem pospal výše, controller slouží k~propojení view a příslušného modelu. Tato Komponenta však zajišťuje také komunikaci uživatele s~modelem. V~případě webových rámců je tato funkce zajištěna pomocí mapování metod controlleru, nazývaných akce, na jednotlivé URL aplikace. Obdobně jako servisní třídy, controllery nabízí možnost automatického vkládání závislostí při dodržení konvencí. Příklad níže uvádí akci dostupnou na URL \texttt{/topic/list} pomocí metody \texttt{GET} protokolu HTTP.
+Jak jsem již zmínil, controller slouží k~propojení view a příslušného modelu. Tato Komponenta však zajišťuje také komunikaci uživatele s~modelem. V~případě webových rámců je tato funkce zajištěna pomocí mapování metod controlleru, nazývaných akce, na jednotlivé URL aplikace. Obdobně jako servisní třídy, controllery nabízí možnost automatického vkládání závislostí při dodržení konvencí. Příklad níže uvádí akci dostupnou na URL \texttt{/topic/list} pomocí metody \texttt{GET} protokolu HTTP.
 
 \begin{example}
 \centering

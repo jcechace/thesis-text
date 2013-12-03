@@ -1,18 +1,18 @@
 \chapter{Nasazení systému do produkce}
-Po ukončení vývoje základních funkcí stanovených funkčními požadavky byl systém pro správu diplomových prací nasazen do cloudového prostředí OpenShift. OpenShift je \uv{Platform as a Service} řešení vyvíjené společností Red Hat, které umožňuje nasazení webových aplikací bez nutnosti správy vlastních serverů. Základní stavební jednotku v~rámci prostřední OpenShift je takzvaný \uv{gear}, reprezentující množství zdrojů (hardwarových i softwarových) dostupných konkrétní aplikaci. V~současné době jsou k~dispozici tři druhy gearů, v~základu všechny poskytují 1GB diskového prostoru:
+Po ukončení vývoje základních funkcí stanovených funkčními požadavky byl systém pro správu diplomových prací nasazen do cloudového prostředí OpenShift. OpenShift je \uv{Platform as a Service} řešení vyvíjené společností Red Hat, které umožňuje nasazení webových aplikací bez nutnosti správy vlastních serverů. Základní stavební jednotkou v~rámci prostřední OpenShift je takzvaný \uv{gear}, reprezentující množství zdrojů (hardwarových i softwarových) dostupných konkrétní aplikaci. V~současné době jsou k~dispozici tři druhy gearů, v~základu všechny poskytují 1GB diskového prostoru\cite{openshift-pricing}:
 
 \begin{itemize}
-\item \textbf{small gear} (512 MB RAM) -- vhodný pro skriptovací jazyky a
-\item \textbf{medium gear} (1 GB RAM) -- vhodný pro JVM a provoz databází
-\item \textbf{large gear} (2 GB RAM)  -- vhodný pro vysoce náročné aplikace
+\item \textbf{Small gear} (512 MB RAM): vhodný pro skriptovací jazyky
+\item \textbf{Medium gear} (1 GB RAM): vhodný pro JVM a provoz databází
+\item \textbf{Large gear} (2 GB RAM): vhodný pro vysoce náročné aplikace
 \end{itemize}
 
-V~rámci jednotlivých gearů pak lze provozovat takzvané \uv{cartridges}, což jsou nástroje připravené k~nasazení v~prostředí OpenShift -- v~podstatě se jedná o~ekvivalent linuxových balíčků. K~dispozici je řada připravených technologií jako aplikační server, různé databáze, nástroje průběžné integrace, a další. Pro nasazení vyvinutého systému byl použit střední gear s~diskovou kapacitou navýšenou na hodnotu 10 GB, aplikace běží na JBoss EWS 2.0 a využívá také cartridge s~databázemi PostgreSQL a MongoDB. Celý proces nasazení aplikace je velmi jednoduchý a zahrnuje tyto kroky:
+V~rámci jednotlivých gearů pak lze provozovat takzvané \uv{cartridges}, což jsou nástroje připravené k~nasazení v~prostředí OpenShift -- v~podstatě se jedná o~ekvivalent linuxových balíčků. K~dispozici je řada připravených technologií -- například aplikační servery či různé databáze. Pro nasazení vyvinutého systému byl použit střední gear s~diskovou kapacitou navýšenou na hodnotu 10 GB, aplikace běží na JBoss EWS 2.0 a využívá také cartridge s~databázemi PostgreSQL a MongoDB. Celý proces nasazení aplikace je velmi jednoduchý a zahrnuje tyto kroky:
 
 \begin{enumerate}
 \item Vytvoření cartridge pro Jboss EWS a databáze.
 \item Přidání vzdáleného OpenShift repozitáře do nastavení lokálního git repozitáře
-\item Vytvoření souboru \texttt{.myenv} a exportovat proměnné prostředí s~nastavení emailového serveru \\
+\item Vytvoření souboru \texttt{.myenv} a export proměnných prostředí s~nastavení emailového serveru \\
 \texttt{
 export OPENSHIFT\_EMAIL\_HOST="smtp.example.com"\\
 export OPENSHIFT\_EMAIL\_PORT=465\\

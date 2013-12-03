@@ -1,9 +1,9 @@
 \chapter{Práce se soubory v~systému pro správu diplomových prací}
-Výstupem bakalářské práce bývá zpravidla zpráva v~podobně textového dokumentu (nejčastěji ve formátu PDF), často doplněna o~množství příloh jako implementace konkrétního řešení nebo vzorek použitých dat. Jedná se o~důležitou součástí hodnocení práce a například konkrétní technické řešení mnohdy bývá hlavním důvodem vypsání práce. Tyto soubory je proto nutné je archivovat. V~této kapitole popisuji použité technologie a technické řešení nahrávání a archivace souboru v~systému pro správu závěrečných prací.
+Výstupem bakalářské práce bývá zpravidla zpráva v~podobně textového dokumentu (nejčastěji ve formátu PDF), často doplněna o~množství příloh jako implementace konkrétního řešení nebo vzorek použitých dat. Jedná se o~důležitou součást hodnocení práce a například konkrétní technické řešení mnohdy bývá hlavním důvodem vypsání práce. Tyto soubory je proto nutné archivovat. V~této kapitole popisuji použité technologie a technické řešení nahrávání a archivace souboru v~systému pro správu závěrečných prací.
 
 \section{Použité technologie}
 \subsection{Fine Uploader}
-Fine Uploader je moderní nástroj pro nahrávání souborů prostřednictvím webových aplikací. Jedná se o~projekt s~otevřeným zdrojovým kódem, implementovaný v~jazyce JavaScript bez jakýchkoliv závislostí. K~dispozici je také verze využívající široce využívanou JavaScriptovou knihovnu jQuery, jež poskytuje výrazně kompaktnější syntaxi. Právě tato varianta byla použita i v~systému pro správu diplomových prací.
+Fine Uploader je moderní nástroj pro nahrávání souborů prostřednictvím webových aplikací. Jedná se o~projekt s~otevřeným zdrojovým kódem, implementovaný v~jazyce JavaScript bez jakýchkoliv závislostí\cite{fu-homepage}. K~dispozici je také verze využívající široce využívanou JavaScriptovou knihovnu jQuery, jež poskytuje výrazně kompaktnější syntaxi. Právě tato varianta byla použita i v~systému pro správu diplomových prací.
 \begin{example}
     \centering
     \begin{lstlisting}
@@ -23,13 +23,13 @@ Fine Uploader je moderní nástroj pro nahrávání souborů prostřednictvím w
     </script>
 </body>
     \end{lstlisting}
-    \caption{Základní použití nástroje  Fine Uploader.}
+    \caption{základní použití nástroje  Fine Uploader}
 \end{example}
-Soubory jsou na server zaslány zakódované v~těle vícedílných požadavků HTTP protokolu s~využitím technologie AJAX. Fine Uploader poskytuje široké možnosti konfigurace a několik rozšiřujících bodů v~různých fázích procesu nahrávání souboru.
+Soubory jsou na server zaslány zakódované v~těle vícedílných požadavků HTTP\footnote{Hypertext Transfer Protocol} protokolu s~využitím technologie AJAX. Fine Uploader poskytuje široké možnosti konfigurace a několik rozšiřujících bodů v~různých fázích procesu nahrávání souboru.
 
 
 \subsection{Mongo GridFS}
-Pro ukládání souborů ve vyvinutém systému byla použita databáze MongoDB. Využití databáze oproti přímému ukládání na disk přináší možnost zaznamenat spolu se souborem i metadata poskytující doplňující informace.GridFS je specifikace popisující způsob ukládání a získávání souboru z~databáze MongoDB, které přesahují maximální povolenou velikost BSON dokumentu, stanovenou na 16 MB. Data jsou v~přídě této specifikace ukládána do hierarchie kolekcí ve tvaru \uv{\texttt{<bucket>.<kolekce>.<dokument>}}, kde:
+Pro ukládání souborů ve vyvinutém systému byla použita databáze MongoDB. Využití databáze oproti přímému ukládání na disk přináší možnost zaznamenat spolu se souborem i metadata poskytující doplňující informace. GridFS je specifikace popisující způsob ukládání a získávání souboru z~databáze MongoDB, které přesahují maximální povolenou velikost BSON dokumentu, stanovenou na 16 MB\cite{mongo-documentation}. Data  ukládána do hierarchie kolekcí ve tvaru \uv{\texttt{<bucket>.<kolekce>.<dokument>}}, kde:
 \begin{itemize}
 \item \texttt{<bucket> (kyblíček)} představuje kořenovou kolekci pro daný GridFS
 \item \texttt{<kolekce>} jedna z~kolekcí \texttt{files} nebo \texttt{chunks} (viz. následující podkapitoly)
@@ -37,11 +37,10 @@ Pro ukládání souborů ve vyvinutém systému byla použita databáze MongoDB.
 \end{itemize}
 
 \subsubsection{\textbf{Kolekce \texttt{files}}}
-Dokumenty v~kolekci \texttt{files} reprezentuji jednotlivé soubory v~úložišti GridFS. Obsah těchto dokumentů tvoří jednak základní informace o~souboru (jméno, typ, kontrolní součet čas a datum uložení) a dále také souborová metadata poskytující doplňující informace.
+Dokumenty v~kolekci \texttt{files} reprezentují jednotlivé soubory v~úložišti GridFS. Obsah těchto dokumentů tvoří jednak základní informace o~souboru (jméno, typ, kontrolní součet, čas a datum uložení) a dále také souborová metadata poskytující doplňující informace.
 \begin{example}
-    \centering
-    \begin{lstlisting}
-
+\centering
+\begin{lstlisting}
 {
     "_id" : ObjectId("5285fc9493f47d2c77e4c2db"),
     "chunkSize" : NumberLong(262144),
@@ -52,34 +51,34 @@ Dokumenty v~kolekci \texttt{files} reprezentuji jednotlivé soubory v~úložišt
     "uploadDate" : ISODate("2013-11-15T10:51:00.821Z"),
     "aliases" : null
 }
-    \end{lstlisting}
-    \caption{Dokument v~kolekci \texttt{files}.}
+\end{lstlisting}
+\caption{dokument v~kolekci \texttt{files}}
 \end{example}
 
 \subsubsection{\textbf{Kolekce \texttt{chunks}}}
-Samotná data tvořící soubor jsou rozdělena na bloky a následně po částech ukládána v~kolekci \texttt{chunks}. Díky tomuto rozdělení lze číst  pouze část uložených dat, čehož lze využít při čtení velkých souborů -- například streamování videa.
+Samotná data tvořící soubor jsou rozdělena na bloky a následně po částech ukládána v~kolekci \texttt{chunks}. Díky tomuto rozdělení lze číst  pouze část uložených dat, čehož lze využít při čtení velkých souborů -- jako je například streamování videa.
 \begin{example}
-    \centering
-    \begin{lstlisting}
+\centering
+\begin{lstlisting}
 {
     "_id" : ObjectId("5285fc9593f47d2c77e4c2dc"),
     "files_id" : ObjectId("5285fc9493f47d2c77e4c2db"),
     "n" : 0,
     "data" : <data>
 }
-    \end{lstlisting}
-    \caption{Dokument v~kolekci \texttt{chunks}.}
+\end{lstlisting}
+\caption{dokument v~kolekci \texttt{chunks}}
 \end{example}
 Na příkladu výše lze vidět, že každý dokument uložený v~této kolekci obsahuje kromě standardního atributu \texttt{\_id} a samotných dat také atributy s~pořadovým číslem bloku a id \uv{rodičovského} souboru v~kolekci \texttt{files}.
 
 \subsection{Dostupné moduly pro práci s~Mongo GridFS}
-Repositář zásuvných modulů platformy Grails nabízí hned několik implementací technického řešení komunikace s~databází MongoDB potažmo její nadstavby GridFS. Pro výběr vyhovujícího řešení jsem proto stanovil následující požadavky:
+Repozitář zásuvných modulů platformy Grails nabízí hned několik implementací technického řešení komunikace s~databází MongoDB potažmo s její nadstavbou GridFS. Pro výběr vyhovujícího řešení jsem proto stanovil následující požadavky:
 
 \begin{itemize}
 \item Údržba modulu ze strany autora, alespoň v~podobě opravy chyb.
 \item Alespoň stručná dokumentace k~aktuální verzi modulu.
 \item Nejlépe žádné změny v~entitách mapovaných na relační databázi.
-\item Zvolený zásuvný modul by měl řešit pouze ukládání souborů, avšak dostatečně pružně pro budoucí rozvoj systému.
+\item Zvolený zásuvný modul by měl řešit pouze ukládání souborů a to dostatečně pružně pro budoucí rozvoj systému.
 \end{itemize}
 
-Hned první dva z~požadavků však dokázaly vyřadit většinu dostupných modulů. Ukázalo se, že velká část z~nich postrádá dokumentací, případě  to jsou jednorázově vyvinuté projekty bez jakékoliv údržby. Další požadavky pak spolehlivě vyřadily i zbylé kandidáty. Za zmínku stojí zejména dva z~dostupných modulů. MongoDB GORM je, jak název napovídá, implementací rozhraní GORM pro databází MongoDB. Tento modul se však hodí spíše, obdobně jako výchozí ORM implementace, pro persistenci kompletních doménových tříd. Mongo GORM jsem se proto rozhodl použít k~persistenci objektů dynamického charakteru, jakým je například konfigurace systému, ukládaných do databáze MongoDB. Druhým modulem, který se ukázal být přínosným, je projekt Mongodb Gridfs. Ačkoliv tento modul obsahuje spoustu drobných chyb a jeho vývoj byl s~největší pravděpodobností ukončen, zdrojový kód se ukázal jako výborný studijní materiál a pro vývoj vlastní aplikační logiky pro ukládání souborů do Mongo GridFS.
+Hned první dva z~požadavků však dokázaly vyřadit většinu dostupných modulů. Ukázalo se, že velká část z~nich postrádá dokumentaci, případně to jsou jednorázově vyvinuté projekty bez jakékoliv údržby. Další požadavky pak spolehlivě vyřadily i zbylé kandidáty. Za zmínku stojí zejména dva z~dostupných modulů. MongoDB GORM je, jak název napovídá, implementací rozhraní GORM pro databází MongoDB. Tento modul se však hodí spíše, obdobně jako výchozí ORM implementace, pro persistenci kompletních doménových tříd. Mongo GORM jsem se proto rozhodl použít k~persistenci objektů dynamického charakteru, jakým je například konfigurace systému, ukládaných do databáze MongoDB. Druhým modulem, který se ukázal být přínosným, je projekt Mongodb Gridfs. Ačkoliv tento modul obsahuje spoustu drobných chyb a jeho vývoj byl s~největší pravděpodobností ukončen, zdrojový kód se ukázal jako výborný studijní materiál pro vývoj vlastní aplikační logiky řešící ukládání souborů do GridFS.
