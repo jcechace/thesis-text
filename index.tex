@@ -7,10 +7,11 @@
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{xcolor}
 \usepackage{graphicx}
-\usepackage{dirtree}
 \usepackage{float}
-\usepackage{enumitem}
+\usepackage{pdfpages}
+\usepackage{etoolbox}
 
 \usepackage{blindtext} % TODO: remove import %
 
@@ -43,16 +44,38 @@
 \thesisfaculty{fi}
 \thesisyear{podzim 2013}
 \thesislang{cs}
+\thesisadvisor{Mgr. Jiří Kolář}
+
 
 \setlength{\parindent}{0,5cm}
+
+\newtoggle{withofficialdesc}
+\togglefalse{withofficialdesc}
+\input{flags}
+
 
 \begin{document}
 \FrontMatter
 \ThesisTitlePage
+\iftoggle{withofficialdesc}{\includepdf[pages={1}]{others/official-desc.pdf}}
+
 
 \begin{ThesisDeclaration}
-\DeclarationText
+    \DeclarationText
+    \AdvisorName
 \end{ThesisDeclaration}
+
+\begin{ThesisThanks}
+    Rád bych poděkoval vedoucímu práce Ing. Jiřímu Pechancovi a doktoru Marku Grácovi za poskytnuté konzultace a zpětnou vazbu. Dále bych rád poděkoval zbylým členům vývojového týmu, Pavlu a Václavovi Dedíkovým.
+\end{ThesisThanks}
+
+\begin{ThesisAbstract}
+    Práce se v první části zabývá architekturou a vývojem aplikací s využitím webového rámce Grails. Část druhá se zaměřuje na vývoj informačního systému pro správu závěrečných prací, popis využitých technologií a vybrané implementační detaily.
+\end{ThesisAbstract}
+
+\begin{ThesisKeyWords}
+    informační systém, správa diplomových prací, správa souborů, Grails, MongoDB, MVC
+\end{ThesisKeyWords}
 
 \MainMatter
 
@@ -71,5 +94,33 @@
 
 \bibliographystyle{IEEEtran}
 \bibliography{index}
+
+\appendix
+
+\chapter{Doplňující informace}
+\section{Rozšíření pro práci s Mongo GridFS}
+\begin{itemize}
+\item MongoDB Tools
+\item Mongodb Gridfs Plugin
+\item MongoDB GORM
+\item MongoDB GORM -- Morphia
+\item MongoFile Plugin
+
+\end{itemize}
+
+
+\chapter{Diagramy}
+
+\section{Domain Model}
+\includegraphics[keepaspectratio, trim=0 100 10 30, clip, width=\textwidth]{./images/domain-model.pdf}
+
+\chapter{Odkazy}
+
+\section{Zdrojový kód projektu}
+Repozitář se zdrojovými kódy projektu (Thesis Management System) je hostován službou GitHub:\\
+\url{https://github.com/jcechace/Thesis-management-system}
+
+\section{Adresa nasazeného systému}
+\url{https://thesis-managementsystem.rhcloud.com/}
 
 \end{document}

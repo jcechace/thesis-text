@@ -97,7 +97,7 @@ def file = gridFileService.getFile(['id': 1, group: "archives"], Thesis.class)
 
 V~případě vyhledávání souboru na základě metadat vrátí volání metody \texttt{getAllFiles} pouze jednu instanci \texttt{GridFSDBFile} reprezentující soubor s~nejnižším \texttt{\_id}. Pro získání všech vyhovujících souborů jsou k~dispozici přetížené varianty vracející seznam objektů typu \texttt{GridFSDBFile}.
 
-\subsection{Servírování souboru klientovi}
+\subsection{Zasílání souborů klientovi}
 Poslední, avšak neméně důležitou, schopností MongoFile je zaslání získaného souboru klientské aplikaci. Metoda \texttt{serveFile} třídy \texttt{GridFileService} nastaví potřebné hlavičky, jako například \texttt{content-type}, a zapíše požadovaný soubor do výstupního proudu HTTP odpovědi.
 \begin{example}
 \centering
@@ -108,7 +108,7 @@ def file = gridFileService.getFile(['id': 1, group: "archives"], Thesis.class)
 // zapsani souboru do http odpovedi
 gridFileService.serveFile(response, file, true)
 \end{lstlisting}
-\caption{servírování souboru klientovi}
+\caption{zaslání souboru klientovi}
 \end{example}
 Na příkladu lze vidět, že volání metody \texttt{serveFile} vyžaduje tři parametry:
 \begin{enumerate}
@@ -159,7 +159,7 @@ def uploadToMongo() {
 \caption{akce pro zpracování přijatého souboru}
 \end{example}
 
-Na příkladu výše lze vidět, že samotné uložení souboru do databáze tvoří jen minimální část celé akce. Zbytek kódu se proto bude nejspíš opakovat ve většině podobných metod. V~systému pro správu diplomových prací minimalizuji množství takového kódu pomocí reaktivního přístupu.
+Na příkladu výše lze vidět, že samotné uložení souboru do databáze tvoří jen minimální část celé akce. Zbytek kódu se proto bude nejspíš opakovat ve většině podobných metod. V~systému pro správu diplomových prací minimalizuji množství takového kódu pomocí návrhového vzoru Pozorovatel a reaktivního přístupu\footnote{Různé akce vyvolávají v systému tzv. události (anglicky events). Reakce na tyto události je pak přesunuta do speciálních metod nazývaných pozorovatel (anglicky observer).}.
 
 \subsubsection{\textbf{Příjem souborů}}
 V~rámci vyvinutého systému jsem vytvořil controller \texttt{com.redhat.grails\\.upload.UploadController}, jehož akce \texttt{upload} slouží jako jediný koncový bod pro příjem souborů v~celém systému. Místo zpracování přijatého souboru však tato akce za použití servisní třídy \texttt{UploadService} v~systému vyvolá událost obsahující data potřebná ke zpracování. Konkrétní vyvolané události lze specifikovat pomocí parametru \texttt{topic} zaslaného jako součást HTTP požadavku spolu se souborem. Logika pro zpracování přijatého souboru je potom součástí metody reagující na vyvolanou událost. Systém pro správu diplomových prací používá události \texttt{avatar} a \texttt{thesis}. První slouží k~archivaci profilových obrázků uživatelů, druhý k~archivaci souborů asociovaných s~pracemi studentů. Obsluhu těchto událostí lze najít ve třídě \texttt{com.redhat.theses.listeners.UploadListenerService}

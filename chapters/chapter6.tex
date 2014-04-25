@@ -1,4 +1,4 @@
-\chapter{Nasazení systému do produkce}
+\chapter{Nasazení systému a budoucí vývoj}
 Po ukončení vývoje základních funkcí stanovených funkčními požadavky byl systém pro správu diplomových prací nasazen do cloudového prostředí OpenShift. OpenShift je \uv{Platform as a Service} řešení vyvíjené společností Red Hat, které umožňuje nasazení webových aplikací bez nutnosti správy vlastních serverů. Základní stavební jednotkou v~rámci prostřední OpenShift je takzvaný \uv{gear}, reprezentující množství zdrojů (hardwarových i softwarových) dostupných konkrétní aplikaci. V~současné době jsou k~dispozici tři druhy gearů, v~základu všechny poskytují 1GB diskového prostoru\cite{openshift-pricing}:
 
 \begin{itemize}
@@ -7,12 +7,14 @@ Po ukončení vývoje základních funkcí stanovených funkčními požadavky b
 \item \textbf{Large gear} (2 GB RAM): vhodný pro vysoce náročné aplikace
 \end{itemize}
 
-V~rámci jednotlivých gearů pak lze provozovat takzvané \uv{cartridges}, což jsou nástroje připravené k~nasazení v~prostředí OpenShift -- v~podstatě se jedná o~ekvivalent linuxových balíčků. K~dispozici je řada připravených technologií -- například aplikační servery či různé databáze. Pro nasazení vyvinutého systému byl použit střední gear s~diskovou kapacitou navýšenou na hodnotu 10 GB, aplikace běží na JBoss EWS 2.0 a využívá také cartridge s~databázemi PostgreSQL a MongoDB. Celý proces nasazení aplikace je velmi jednoduchý a zahrnuje tyto kroky:
+V~rámci jednotlivých gearů pak lze provozovat takzvané \uv{cartridges}, což jsou nástroje připravené k~nasazení v~prostředí OpenShift -- v~podstatě se jedná o~ekvivalent linuxových balíčků. K~dispozici je řada připravených technologií -- například aplikační servery či různé databáze.
+
+Pro nasazení vyvinutého systému byl použit střední gear s~diskovou kapacitou navýšenou na hodnotu 10 GB, aplikace běží na JBoss EWS 2.0\footnote{Jboss Enterprise Web Server} a využívá také cartridge s~databázemi PostgreSQL a MongoDB. Celý proces nasazení aplikace je velmi jednoduchý a zahrnuje tyto kroky:
 
 \begin{enumerate}
 \item Vytvoření cartridge pro Jboss EWS a databáze.
 \item Přidání vzdáleného OpenShift repozitáře do nastavení lokálního git repozitáře
-\item Vytvoření souboru \texttt{.myenv} a export proměnných prostředí s~nastavení emailového serveru \\
+\item Vytvoření souboru \texttt{.myenv} a export proměnných prostředí s~nastavením emailového serveru \\
 \texttt{
 export OPENSHIFT\_EMAIL\_HOST="smtp.example.com"\\
 export OPENSHIFT\_EMAIL\_PORT=465\\
@@ -21,3 +23,27 @@ export OPENSHIFT\_EMAIL\_PASSWORD="password"\\
 }
 \item Synchronizace vzdáleného a lokálního repozitáře příkazem \texttt{git push}
 \end{enumerate}
+
+\begin{figure}[htpb]
+    \centering
+    \includegraphics[trim=0 480 0 30, clip, keepaspectratio, width=\textwidth]{./images/deployment-diagram.pdf}
+    \caption{Diagram nasazení\cite{vena-bp}}
+    \label{fig:deployment}
+\end{figure}
+
+\section{Budoucí vývoj}
+Vývoj systému pro správu diplomových prací jeho nasazením neskončil. Testovací provoz systému v semestru podzim 2013 již přinesl hodnotnou zpětnou vazbu zástupců firmy Red Hat i vedoucích z Masarykovy univerzity a Vysokého učení technického v Brně. Mezi nejčastější požadavky zástupců obou stran patří
+\begin{enumerate}
+\item seznam vypsaných témat určený k tisku
+\item export vypsaných témat
+\item podpora školních projektů
+\end{enumerate}
+
+První položku seznamu se podařilo implementovat již v průběhu testovacího provozu. Export vypsaných témat předneslo jako návrh několik zástupců MU a VUT. Tento požadavek je pochopitelný, jelikož možnost importovat data (nebo automatizace jejich zadávání) zásadním způsobem sníží množství práce vedoucích. V následujícím semestru proto plánujeme vyvinutý systém rozšířit o export témat ve formátu XML\footnote{Extensible Markup Language} a CSV\footnote{Comma-separated values}.
+
+
+Kromě spolupráce v oblasti diplomových prací vyučuje společnost Red Hat na partnerských univerzitách několik kurzů\footnote{Na FI se jedná například o kurz programovacího jazyka Python nebo enterprise Java technologií}. Požadavek na rozšíření systému o správu těchto kurzů byl očekávaný, avšak implementace požadované funkcionality bude časově náročná. Správa kurzů se totiž od diplomových prací výrazně liší.
+
+V rámci budoucího vývoje je v plánu také vyčlenit funkcionalitu pro práci s GridFS a nahrávání souborů do samostatných zásuvných modulu. Zatímco v případě GridFS  se jedná pouze o \uv{formality} v podobě vyčlenění kódu,v případě modulu pro nahrávání souborů je situace složitější. Během uplynulého půl roku došlo k vydání nové verze nástroje Fine Uploader, jenž rozšiřuje možnosti konfigurace a řeší problém oddělení prezentační vrstvy, se kterým se tento nástroj dlouhodobě potýkal. V důsledku těchto změn si tak vyčlenění modulu vyžádá rozsáhlý refaktoring.
+
+Rád bych také zmínil chystanou změnu webové adresy, na které je systém dostupný. Současná adresa\footnote{https://thesis-managementsystem.rhcloud.com} je příliš komplikovaná a nepřehledná. Aktuálně proto připravujeme přesunutí systému pod doménu společnosti Red Hat, na adresu \texttt{https://diplomky.redhat.com}.

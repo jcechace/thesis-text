@@ -10,6 +10,13 @@ Tvoří základ prezentační vrstvy. Hlavním účelem této komponenty je zobr
 Zajišťuje komunikaci s uživatelem a prostřednictvím view zobrazuje požadované informace.
 \end{itemize}
 
+\begin{figure}[ftbh]
+    \centering
+    \includegraphics[scale=0.4, clip, keepaspectratio]{./images/mvc.pdf}
+    \caption{Architektura MVC}
+\end{figure}
+
+
 Poprvé tento návrhový vzor popsal v~roce 1979 norský profesor Trygve Reenskaug. O~rok později vznikla jako součást programovacího jazyka Smalltalk-80 první implementace této architektury. Specifické pro tuto implementaci bylo spojení komponent view a controller. Tento typ MVC se i dnes používá u~rámců pro GUI, kde ovládací prvky nejen zobrazují informace, ale také přijímají uživatelský vstup. Rozdělení všech tří komponent je pak běžnou praxí u~rámců pro vývoj webových aplikací, jakým je například Grails.
 
 \section{Adresářová struktura}
@@ -44,7 +51,7 @@ Doménové třídy představují v~rámci aplikace reprezentaci doménového mod
 \item \textbf{Thesis}: konkrétní práce konkrétního studenta.
 \item \textbf{Application}: přihláška studenta k~tématu závěrečné práce.
 \end{itemize}
-Detailní popis celého doménového modelu je obsažen v~práci Václava Dedíka\cite{vena-bp}, v~příloze lze najít UML diagram modelu.
+Detailní popis celého doménového modelu je obsažen v~práci Václava Dedíka\cite{vena-bp}, v~příloze lze najít UML diagram modelu\cite{vena-bp}.
 
 \subsection{Mapování doménových tříd do databáze}
 Platforma Grails využívá pro persistenci doménových tříd do databáze nástroj GORM (Grails Object Relational Mapping). Označení \uv{objektově-relační mapování} v~názvu je lehce matoucí, neboť dnes existují i implementace GORM API pro řadu nerelačních databází. Systém pro správu diplomových prací využívá rozhraní GORM pro práci s~databázemi MongoDB a PostgreSQL.
@@ -53,7 +60,7 @@ Platforma Grails využívá pro persistenci doménových tříd do databáze ná
 Ačkoliv všechny implementace rozhraní GORM poskytují stejné API, liší se v~rozsahu a poskytovaných funkcích (v~případě NoSQL databází například nemá smysl konfigurace tabulek). V~rámci této kapitoly proto uvažuji výchozí implementaci určenou pro relační databáze, kam je mapována i převážná většina doménových tříd ve vyvinutém systému. V~souladu s~filosofií platformy Grails o~využívání existujících knihoven se ani v~případě GORM nejedná o~zcela nové řešení a základ výchozí implementace je tvořen aplikačním rámcem Hibernate.
 
 \subsubsection{\textbf{Persistenční logika}}
-Jedním z~principů popisovaným návrhovým vzorem \uv{Data Mapper} je oddělení persistenční logiky a doménové třídy -- tento návrh přispívá ke snížení závislosti na konkrétním řešení persistence. Ve srovnání s~\uv{Active Record}, kde je persistenční logika přímo součásti doménových tříd, je však použití tohoto řešení méně přehledné a pohodlné. GORM, jakožto řešení využívající Hibernate je samozřejmě také založen na vzoru \uv{Data Mapper}, avšak díky dynamické podstatě programovacího jazyka Groovy umožňuje využit přístup podobný \uv{Active Record}. Persistenční CRUD operace jsou na jednotlivých entitách zpřístupněny pomocí \uv{magických} metod, což jsou metody přidané objektu mimo definici třídy pomocí metaprogramování.
+Jedním z~principů popisovaným návrhovým vzorem \uv{Data Mapper} je oddělení persistenční logiky a doménové třídy -- tento návrh přispívá ke snížení závislosti na konkrétním řešení persistence. Ve srovnání s~\uv{Active Record}, kde je persistenční logika přímo součásti doménových tříd, je však použití tohoto řešení méně přehledné a pohodlné. GORM, jakožto řešení využívající Hibernate je samozřejmě také založen na vzoru \uv{Data Mapper}, avšak díky dynamické podstatě programovacího jazyka Groovy umožňuje využit přístup podobný \uv{Active Record}. Persistenční CRUD operace jsou na jednotlivých entitách zpřístupněny pomocí \uv{magických} metod, což jsou metody přidané objektu mimo definici třídy pomocí metaprogramování\footnote{Princip úpravy kódu programu za běhu}.
 
 \begin{example}
 \centering
@@ -107,7 +114,7 @@ Základem prezentační vrstvy jsou takzvaná views. Jedná se v~podstatě o~ša
 Jedním ze základních principů MVC je oddělení prezentační vrstvy a modelu. V~případě implementací s~oddělenou komponentou controller to znamená i omezení přímé komunikace mezi modelem a view  -- ideálně by měla být všechna potřebná data předána view z~controlleru. V~praxi je však striktní oddělení view a modelu velmi obtížné, neboť v~moderních aplikacích jsou jednotlivá view často dynamická. Důsledkem tak může být přenášení nepotřebných dat nebo zanášení aplikační logiky do implementace daného view. Volání metod obsahujících aplikační logiku přímo z~view však také není žádoucí, neboť na prezentační vrstvě často pracují programátoři zaměření na prezentační vrstvu, bez znalosti aplikačního modelu.
 
 
-Grails řeší tento problém možností definovat doplňující knihovny značek (anglicky \uv{tag libraries}), které umožní používat požadovanou logiku prostřednictvím GSP značek. Novou knihovnu lze vytvořit založením třídy v~adresáři \texttt{grails-app/taglib} nebo pomocí příkazu grails \texttt{create-tag-lib}
+Grails řeší tento problém možností definovat doplňující knihovny značek (anglicky \uv{tag libraries}), které umožní používat požadovanou logiku prostřednictvím GSP značek. Novou knihovnu lze vytvořit manuálním založením třídy v~adresáři \texttt{grails-app/taglib} nebo pomocí příkazu grails \texttt{create-tag-lib}
 
 V~rámci vyvíjeného systému vzniklo těchto knihoven několik, následující seznam uvádí některé z~nich (jednotlivé položky seznamu jsou ve tvaru \uv{tříd -- jmenný prostor})
 \begin{itemize}
